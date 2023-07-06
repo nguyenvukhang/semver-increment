@@ -33,8 +33,8 @@ function getAllInput(): Input {
     increment: getInput('increment', R) as ReleaseType,
     identifier: getInput('identifier'),
     ver: {
-      file: getInput('version_file', R),
-      regex: new RegExp(getInput('version_regex', R)),
+      file: getInput('version-file', R),
+      regex: new RegExp(getInput('version-regex', R)),
     },
   }
   assertRelease(input.increment)

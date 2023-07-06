@@ -14,11 +14,11 @@ inputs:
     required: false
 
   # Relative to the root of the project.
-  version_file:
+  version-file:
     required: true
 
   # Regex that returns the raw SemVer in the first capture group.
-  version_regex:
+  version-regex:
     # Example for Cargo.toml
     #
     # '^version = "(.*)"'

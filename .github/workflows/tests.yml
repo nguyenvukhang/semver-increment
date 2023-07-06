@@ -80,15 +80,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      # - uses: nguyenvukhang/semver-increment@v1
       - uses: ./
-        # - uses: nguyenvukhang/semver-increment@v1
         id: test
         continue-on-error: true
         with:
           increment: ${{ matrix.increment }}
           identifier: ${{ matrix.identifier }}
-          version_file: ${{ matrix.file }}
-          version_regex: ${{ matrix.regex }}
+          version-file: ${{ matrix.file }}
+          version-regex: ${{ matrix.regex }}
 
       - name: Assert correct error message
         uses: ./assert_eq
