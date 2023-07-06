@@ -1,60 +1,71 @@
-import * as core from '@actions/core'
+import { getInput, setFailed, setOutput } from '@actions/core'
 import { readFileSync, writeFileSync } from 'fs'
 import { SemVer, ReleaseType } from 'semver'
 import parse from 'semver/functions/parse'
-import chalk from 'chalk'
 
 // prettier-ignore
-const RELEASE_TYPES = [ 'major', 'premajor', 'minor', 'preminor', 'patch', 'prepatch', 'prerelease' ]
-const isValidReleaseType = (s: string) => RELEASE_TYPES.includes(s)
+const RELEASE_TYPES = ['major', 'premajor', 'minor', 'preminor', 'patch', 'prepatch', 'prerelease'] as const
+function assertRelease(s: any) {
+  const msg = `Invalid release type "${s}".\nUse one of ${RELEASE_TYPES}`
+  if (!RELEASE_TYPES.includes(s)) throw new Error(msg)
+}
 
 function inc(sv: SemVer, rt: ReleaseType, id?: string): SemVer {
   const isPre = rt.startsWith('pre') && !id
   return sv.inc(rt, isPre ? 'alpha' : undefined)
 }
 
-const DISPLAY_RANGE = 3
+type Input = {
+  increment: ReleaseType
+  identifier?: string
+  ver: { file: string; regex: RegExp }
+}
+
+function getAllInput(): Input {
+  const R = { required: true }
+  const input = {
+    increment: getInput('increment', R) as ReleaseType,
+    identifier: getInput('identifier'),
+    ver: {
+      file: getInput('version_file', R),
+      regex: new RegExp(getInput('version_regex', R)),
+    },
+  }
+  assertRelease(input.increment)
+  return input
+}
+
+function preview(lines: string[], delta: number, range = 3) {
+  const [lb, rb] = [delta - range, delta + range]
+  console.log('---')
+  lines.filter((_, i) => lb <= i && i <= rb).forEach((v) => console.log(v))
+  console.log('---')
+}
 
 try {
-  const REQUIRED = { required: true }
-  const increment = core.getInput('increment', REQUIRED) as ReleaseType
+  const { increment, identifier, ver } = getAllInput()
 
-  if (!isValidReleaseType(increment))
-    throw new Error(
-      `Invalid release type "${increment}".\n` +
-        `Use one of ${JSON.stringify(RELEASE_TYPES)}.`
-    )
-
-  const identifier = core.getInput('identifier')
-  const version_file = core.getInput('version_file', REQUIRED)
-  const version_regex = new RegExp(core.getInput('version_regex', REQUIRED))
-
-  const lines = readFileSync(version_file, 'utf8').split('\n')
-  const n = lines.findIndex((v) => version_regex.test(v))
+  const lines = readFileSync(ver.file, 'utf8').split('\n')
+  const n = lines.findIndex((v) => ver.regex.test(v))
   if (n === -1) throw new Error(`Regex doesn't match any line`)
 
   // won't throw because regex has matched previously already
-  const current = parse(version_regex.exec(lines[n])[1])
-  const current_version = current.version
+  const current = parse(ver.regex.exec(lines[n])[1])
 
-  const next = inc(current, increment, identifier)
+  const next = inc(parse(current.version), increment, identifier)
   // replace the line in-place
-  lines[n] = lines[n].replace(current_version, next.version)
+  lines[n] = lines[n].replace(current.version, next.version)
 
   console.log(`\
-Increment request: [${increment}, ${identifier}]
-Current version:   ${current_version}
+Increment request: [${increment}${identifier ? ', ' + identifier : ''}]
+Current version:   ${current.version}
 Next version:      ${next.version}
 
-Updated "${version_file}" preview:`)
-  console.log('────────────────────────────────────────────────────────────')
-  lines
-    .filter((_, i) => n - DISPLAY_RANGE <= i && i <= n + DISPLAY_RANGE)
-    .forEach((v, i) => console.log(i == n ? v : chalk.green(v)))
-  console.log('────────────────────────────────────────────────────────────')
+Updated "${ver.file}" preview:`)
+  preview(lines, n)
 
-  writeFileSync(version_file, lines.join('\n'))
-  core.setOutput('version', next.version)
+  writeFileSync(ver.file, lines.join('\n'))
+  setOutput('version', next.version)
 } catch (err) {
-  core.setFailed(err.message)
+  setFailed(err.message)
 }
