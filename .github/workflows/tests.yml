@@ -73,7 +73,7 @@ jobs:
             file: ./test/samples/good.toml
             regex: '^version = ".*"'
             increment: major
-            error: 'version_regex must have at least one capture group'
+            error: 'version-regex must have at least one capture group'
 
           - name: Regex not found in file
             file: ./test/samples/good.toml

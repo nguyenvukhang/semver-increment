@@ -22,7 +22,7 @@ type Input = {
 function getMatch(re: RegExp, haystack: string) {
   const result = re.exec(haystack)!
   if (typeof result[1] !== 'string') {
-    throw new Error('version_regex must have at least one capture group')
+    throw new Error('version-regex must have at least one capture group')
   }
   return result[1]
 }
