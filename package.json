@@ -5,7 +5,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "ncc build src/index.ts"
+    "build": "ncc build src/index.ts",
+    "test": "yarn build && git commit --no-edit --amend && git push -f test test"
   },
   "license": "MIT",
   "dependencies": {

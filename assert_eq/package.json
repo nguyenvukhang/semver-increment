@@ -1,0 +1,15 @@
+{
+  "name": "assert_eq",
+  "version": "0.0.0",
+  "main": "assert_eq.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "ncc build assert_eq.js && mv dist/index.js dist/assert_eq.js"
+  },
+  "dependencies": {
+    "@actions/core": "^1.10.0"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.36.1"
+  }
+}

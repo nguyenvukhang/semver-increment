@@ -24,6 +24,8 @@ inputs:
 outputs:
   version:
     description: 'The incremented version'
+  error:
+    description: 'Error message, if any'
 
 runs:
   using: 'node16'

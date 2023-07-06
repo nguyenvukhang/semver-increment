@@ -1,0 +1,103 @@
+name: SemVer Increment Tests
+
+on:
+  push:
+
+jobs:
+  test:
+    name: ${{ matrix.name }}
+    strategy:
+      matrix:
+        # test cases
+        include:
+          - name: ↑ patch (0.7.1-alpha.4 -> 0.7.1)
+            file: ./test/samples/good-alpha.toml
+            regex: '^version = "(.*)"'
+            increment: patch
+            output: 0.7.1
+
+          - name: ↑ patch-alpha (0.7.1 -> 0.7.2)
+            file: ./test/samples/good.toml
+            regex: '^version = "(.*)"'
+            increment: patch
+            identifier: alpha
+            output: 0.7.2
+
+          - name: ↑ pre (0.7.1-alpha.4 -> 0.7.1-alpha.5)
+            file: ./test/samples/good-alpha.toml
+            regex: '^version = "(.*)"'
+            increment: prerelease
+            output: 0.7.1-alpha.5
+
+          - name: ↑ pre-alpha (0.7.1 -> 0.7.2-alpha.0)
+            file: ./test/samples/good.toml
+            regex: '^version = "(.*)"'
+            increment: prerelease
+            identifier: alpha
+            output: 0.7.2-alpha.0
+
+          - name: Invalid regex
+            file: ./test/samples/good.toml
+            regex: '^version = ".*)"'
+            increment: major
+            error: 'Invalid regular expression: /^version = ".*)"/: Unmatched '')'''
+
+          - name: No capture groups
+            file: ./test/samples/good.toml
+            regex: '^version = ".*"'
+            increment: major
+            error: 'version_regex must have at least one capture group'
+
+          - name: Regex not found in file
+            file: ./test/samples/good.toml
+            regex: '^version= "(.*)"'
+            increment: major
+            error: "Regex doesn't match any line"
+
+          - name: File not found
+            file: ./test/samples/non_existent.toml
+            regex: '^version = "(.*)"'
+            increment: major
+            error: 'File not found: ./test/samples/non_existent.toml'
+
+          - name: Invalid SemVer in file
+            file: ./test/samples/bad.toml
+            regex: '^version = "(.*)"'
+            increment: major
+            error: |
+              Invalid SemVer found in ./test/samples/bad.toml:
+              version = "b.7.1-alpha.4"
+
+          - name: Invalid release type
+            file: ./test/samples/good.toml
+            regex: '^version = "(.*)"'
+            increment: calista
+            error: |
+              Invalid release type "calista".
+              Use one of major,premajor,minor,preminor,patch,prepatch,prerelease
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./
+        # - uses: nguyenvukhang/semver-increment@v1
+        id: test
+        continue-on-error: true
+        with:
+          increment: ${{ matrix.increment }}
+          identifier: ${{ matrix.identifier }}
+          version_file: ${{ matrix.file }}
+          version_regex: ${{ matrix.regex }}
+
+      - name: Assert correct error message
+        uses: ./assert_eq
+        if: matrix.error
+        with:
+          received: ${{ steps.test.outputs.error }}
+          expected: ${{ matrix.error }}
+
+      - name: Assert correct version
+        if: matrix.output
+        run: |
+          [[ '${{ steps.test.outputs.version }}' == '${{ matrix.output }}' ]]

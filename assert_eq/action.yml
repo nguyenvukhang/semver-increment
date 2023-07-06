@@ -1,0 +1,12 @@
+name: Assert Equal
+description: Checks if two un-bashable strings are equal using JS
+
+inputs:
+  received:
+    required: true
+  expected:
+    required: false
+
+runs:
+  using: node16
+  main: dist/assert_eq.js
