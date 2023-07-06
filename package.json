@@ -5,7 +5,8 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "build": "ncc -m build semver.ts && mv dist/index.js dist/semver.js"
+    "build": "ncc -m build semver.ts && mv dist/index.js dist/semver.js",
+    "test": "node increments.js"
   },
   "dependencies": {
     "@actions/core": "^1.10.0",

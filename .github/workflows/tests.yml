@@ -4,38 +4,65 @@ on:
   push:
 
 jobs:
-  test:
+  should-pass:
     name: ${{ matrix.name }}
     strategy:
       matrix:
-        # test cases
         include:
+          - name: ↑ prepatch (0.7.1-alpha.4 -> 0.7.2-0)
+            file: ./test/samples/good-alpha.toml
+            increment: prepatch
+            output: 0.7.2-0
+
+          - name: ↑ prepatch-alpha (0.7.1 -> 0.7.2-alpha.0)
+            file: ./test/samples/good.toml
+            increment: prepatch
+            identifier: alpha
+            output: 0.7.2-alpha.0
+
           - name: ↑ patch (0.7.1-alpha.4 -> 0.7.1)
             file: ./test/samples/good-alpha.toml
-            regex: '^version = "(.*)"'
             increment: patch
             output: 0.7.1
 
           - name: ↑ patch-alpha (0.7.1 -> 0.7.2)
             file: ./test/samples/good.toml
-            regex: '^version = "(.*)"'
             increment: patch
             identifier: alpha
             output: 0.7.2
 
           - name: ↑ pre (0.7.1-alpha.4 -> 0.7.1-alpha.5)
             file: ./test/samples/good-alpha.toml
-            regex: '^version = "(.*)"'
             increment: prerelease
             output: 0.7.1-alpha.5
 
           - name: ↑ pre-alpha (0.7.1 -> 0.7.2-alpha.0)
             file: ./test/samples/good.toml
-            regex: '^version = "(.*)"'
             increment: prerelease
             identifier: alpha
             output: 0.7.2-alpha.0
 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        id: test
+        with:
+          increment: ${{ matrix.increment }}
+          identifier: ${{ matrix.identifier }}
+          version-file: ${{ matrix.file }}
+          version-regex: '^version = "(.*)"'
+
+      - name: Assert correct version
+        if: matrix.output
+        run: |
+          [[ '${{ steps.test.outputs.version }}' == '${{ matrix.output }}' ]]
+
+  should-fail:
+    name: ${{ matrix.name }}
+    strategy:
+      matrix:
+        include:
           - name: Invalid regex
             file: ./test/samples/good.toml
             regex: '^version = ".*)"'
@@ -79,8 +106,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
-      # - uses: nguyenvukhang/semver-increment@v1
       - uses: ./
         id: test
         continue-on-error: true
@@ -96,8 +121,3 @@ jobs:
         with:
           received: ${{ steps.test.outputs.error }}
           expected: ${{ matrix.error }}
-
-      - name: Assert correct version
-        if: matrix.output
-        run: |
-          [[ '${{ steps.test.outputs.version }}' == '${{ matrix.output }}' ]]
