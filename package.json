@@ -3,12 +3,10 @@
   "repository": "git@github.com:nguyenvukhang/semver-increment.git",
   "author": "nguyenvukhang <brew4k@gmail.com>",
   "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "build": "ncc build src/index.ts",
-    "test": "yarn build && git commit --no-edit --amend && git push -f test test"
-  },
   "license": "MIT",
+  "scripts": {
+    "build": "ncc -m build semver.ts && mv dist/index.js dist/semver.js"
+  },
   "dependencies": {
     "@actions/core": "^1.10.0",
     "semver": "^7.5.3"
@@ -22,7 +20,6 @@
   "prettier": {
     "tabWidth": 2,
     "semi": false,
-    "singleQuote": true,
-    "arrowParens": "always"
+    "singleQuote": true
   }
 }

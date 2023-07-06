@@ -23,10 +23,10 @@ inputs:
 
 outputs:
   version:
-    description: 'The incremented version'
+    description: The incremented version
   error:
-    description: 'Error message, if any'
+    description: Error message, if any
 
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: node16
+  main: dist/semver.js
