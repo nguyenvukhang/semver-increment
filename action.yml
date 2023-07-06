@@ -1,5 +1,8 @@
 name: Semver Increment
 description: Increment semver version
+branding:
+  icon: arrow-up-right
+  color: gray-dark
 
 inputs:
   # major | premajor | minor | preminor | patch | prepatch | prerelease
