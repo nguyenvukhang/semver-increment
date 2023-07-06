@@ -1,0 +1,29 @@
+{
+  "name": "semver-increment",
+  "repository": "git@github.com:nguyenvukhang/semver-increment.git",
+  "author": "nguyenvukhang <brew4k@gmail.com>",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "ncc build src/index.ts"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^5.1.1",
+    "chalk": "^5.3.0",
+    "semver": "^7.5.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.0",
+    "@types/semver": "^7.5.0",
+    "@vercel/ncc": "^0.36.1",
+    "typescript": "^5.1.6"
+  },
+  "prettier": {
+    "tabWidth": 2,
+    "semi": false,
+    "singleQuote": true,
+    "arrowParens": "always"
+  }
+}

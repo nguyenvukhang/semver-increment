@@ -1,0 +1,30 @@
+name: Semver Increment
+description: Increment semver version
+
+inputs:
+  # major | premajor | minor | preminor | patch | prepatch | prerelease
+  increment:
+    required: true
+
+  # alpha | beta | <anything>
+  identifier:
+    required: false
+
+  # Relative to the root of the project.
+  version_file:
+    required: true
+
+  # Regex that returns the raw SemVer in the first capture group.
+  version_regex:
+    # Example for Cargo.toml
+    #
+    # '^version = "(.*)"'
+    required: true
+
+outputs:
+  version:
+    description: 'The incremented version'
+
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
